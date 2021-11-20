@@ -14,8 +14,10 @@ public class VetСlinic {
 
         // создаем объект класса Veterinarian через рефлексию
         Class vet = Class.forName("com.pb.goncharov.hw6.Veterinarian");
-        Constructor constr = vet.getConstructor(new Class[] {String.class});
-        Object veterenarian = constr.newInstance("");
+        //Constructor constr = vet.getConstructor(new Class[] {String.class});
+        Constructor constr = vet.getConstructor();
+        //Object veterenarian = constr.newInstance("");
+        Object veterenarian = constr.newInstance();
 
         // проверяем и выводим на печать работу переназначенных метдов toString(), hashCode(), equals()
         System.out.println("Объект " + anims[1].toString() + " равен объекту "+ anims[2].toString() + " "
