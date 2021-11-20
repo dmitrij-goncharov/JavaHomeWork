@@ -39,7 +39,7 @@ public class Auth {
             throw new WrongLoginException(log);
         }
 
-        if (Pattern.matches("[a-zA-Z_0-9]{5,}",pass) & pass.equals(confir)) {
+        if (Pattern.matches("[a-zA-Z_0-9]{5,}",pass) && pass.equals(confir)) {
             setPassword(pass);
         }
         else {
@@ -50,7 +50,7 @@ public class Auth {
 
     // метод авторизации на сайте, возвращаем true если совпали логин и пароль
     public boolean signIn(String log, String pass) throws WrongLoginException  {
-        if (log.equals(getLogin()) & pass.equals(getPassword())) {
+        if (log.equals(getLogin()) && pass.equals(getPassword())) {
            return true;
         }
         else {
