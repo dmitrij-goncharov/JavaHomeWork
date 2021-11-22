@@ -32,10 +32,9 @@ public class Auth {
     // метод для регистрации на сайте
     public void signUp (String log, String pass, String confir) throws WrongLoginException, WrongPasswordException {
 
-        if (Pattern.matches("[a-zA-Z0-9]{5,20}",log)) {
+        if (Pattern.matches("[a-zA-Z0-9]{5,20}", log)) {
           setLogin(log);
-        }
-        else {
+        } else {
             throw new WrongLoginException(log);
         }
 
