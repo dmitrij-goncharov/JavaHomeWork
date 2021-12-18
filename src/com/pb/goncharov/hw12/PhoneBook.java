@@ -1,4 +1,4 @@
-package com.pb.goncharov.hw11;
+package com.pb.goncharov.hw12;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,14 +12,18 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PhoneBook  {
-    public static String file_phonebook = "/home/drag/IdeaProjects/JavaHomeWork/src/com/pb/goncharov/hw11/phonebook.json";
+    public static String file_phonebook = "/home/drag/IdeaProjects/JavaHomeWork/src/com/pb/goncharov/hw12/phonebook.json";
     // создаем переменную абонента и пустой список для книги, нужен доступ из разных методов
     static Abonent tempAbonent;
     static List<Abonent> abonents = new ArrayList<>();
     static List<Abonent> abonentsByName = new ArrayList<>();
     static List<Abonent> abonentsByPhone = new ArrayList<>();
+
 
 
 
@@ -117,8 +121,21 @@ public class PhoneBook  {
             for (String phone : phones) {
                 PnoneNumber pn = new PnoneNumber();
                 pn.setNumber(phone);
-                // не будем писать логику для оператора и описания абонента, заполним одинаково
-                pn.setOperator("оператор связи");
+                // напишем логику через лямбду. в зависимости от номера будем присваивать поле, например
+                // 050, 099 МТС, 067 Киевстар
+                UnaryOperator<String> opMob = s -> {
+                        switch (s.substring(0, 3)) {
+                        case "050": return "MTC";
+                        case "066": return "МТС";
+                        case "067": return "Kyivstar";
+                        case "097": return "Kyivstar";
+                        case "063": return "Life";
+                        default: return "оператор связи";
+                    }
+                };
+
+                pn.setOperator(opMob.apply(phone));
+                // не будем писать логику для описания номера
                 pn.setDescription("описание номера");
                 abon.phones.add(pn);
             }
@@ -136,7 +153,6 @@ public class PhoneBook  {
         System.out.println("Вы точно хотите отредактировать данные абонента (Y да, N нет) \n"+ abonents.get(indexToEdit));
         Scanner inu = new Scanner(System.in);
         String inn = inu.nextLine().substring(0,1).toUpperCase(Locale.ROOT);
-
 
         if (inn.equals("Y")) {
             tempAbonent = abonentToEdit();
@@ -166,7 +182,11 @@ public class PhoneBook  {
     static void sortByName()  {
         abonentsByName.clear();
         abonentsByName.addAll(0, abonents);
-        Collections.sort(abonentsByName, Comparator.comparing(Abonent::getName));
+
+        //Collections.sort(abonentsByName, Comparator.comparing(Abonent::getName));   // так было в hw11
+        // выводим в streamAPI сортируем по имени, и потом поток загоняем обратно в arraylist
+        abonentsByName = abonentsByName.stream().sorted(Comparator.comparing(Abonent::getName))
+                .collect(Collectors.toList());
     }
 
     static void sortByFirstPhone()  {
@@ -174,7 +194,11 @@ public class PhoneBook  {
         abonentsByPhone.addAll(0, abonents);
 
         //сортируем список по 1-му телефону абонента
-        Collections.sort(abonentsByPhone, Comparator.comparing(Abonent::theFirstPhone));
+        //Collections.sort(abonentsByPhone, Comparator.comparing(Abonent::theFirstPhone)); // так было в hw11
+
+        // выводим в streamAPI сортируем по первому телефону, и потом поток загоняем обратно в arraylist
+       abonentsByPhone =  abonentsByPhone.stream().sorted(Comparator.comparing(Abonent::theFirstPhone))
+               .collect(Collectors.toList());
     }
 
     static String abonentsToJson (List<Abonent> inn) throws Exception {
@@ -236,18 +260,28 @@ public class PhoneBook  {
     }
 
     static void abonentSearch (String substr) {
+/* так было без StreamAPI  в hw11
         for (Abonent temp : abonents ) {
             if (temp.toString().toLowerCase().contains(substr.toLowerCase()))  {
                 System.out.println("По поиску __  " + substr + "  __ найден абонент \n" + temp);
             }
-            
+
         }
+*/
+
+        // поиск элементов со StreamAPI, по сути фильтруем и выводим только объекты, в полях которых есть
+        // искомая строка
+        System.out.println("Найдены абоненты:");
+        abonents.stream()
+                .filter(x -> x.toString().toLowerCase().contains(substr.toLowerCase()))
+                .forEach(System.out::println);
+
     }
 
     static int abonentToFind (String abID) {
        if (abID.matches("\\d+")) {
             int intAbID = Integer.parseInt(abID);
-            int indexToFind = Collections.binarySearch(abonents, new Abonent(intAbID), Comparator.comparing(Abonent::getAbonentID));
+           int indexToFind = Collections.binarySearch(abonents, new Abonent(intAbID), Comparator.comparing(Abonent::getAbonentID));
             if (indexToFind >= 0) {
                 return indexToFind;
             }
