@@ -60,10 +60,9 @@ public class MultiServer {
         private PrintWriter outMess;
         // входящее собщение
         private Scanner inMess;
-        private static final String HOST = "localhost";
-        private static final int PORT = 1234;
+
         // клиентский сокет
-        private Socket clientSocket = null;
+        private Socket clientSocket;
 
 
         // конструктор, который принимает клиентский сокет и сервер
